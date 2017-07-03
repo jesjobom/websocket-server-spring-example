@@ -17,15 +17,35 @@
 			<input type="button" id="btnDisconnect" value="Disconnect" disabled="disabled" onclick="javascript: disconnectWebsocket();"/>
 			<input type="button" id="btnSendHello" value="Send Hello" disabled="disabled" onclick="javascript: sendHello();"/>
 		</div>
+		<div id="channel-controls" style="display: none;">
+			<hr/>
+			<div>
+				<select id="channels" onchange="javascript: changeChannel();">
+					<option value="">Select a channel or create a new one</option>
+				</select>
+			</div>
+			<div>
+				<input type="button" id="btnChCreate" value="Create" onclick="javascript: createChannel();"/>
+				<input type="button" id="btnChSubscribe" value="Subscribe" disabled="disabled" onclick="javascript: subscribe();" disabled="disabled"/>
+				<input type="button" id="btnChUnsubscribe" value="Unsubscribe" disabled="disabled" onclick="javascript: unsubscribe();" disabled="disabled"/>
+			</div>
+		</div>
+		<div id="input" style="display: none;">
+			<hr/>
+			<label for="mainInput">Input:</label>
+			<input type="text" id="textInput" />
+			<input type="button" id="btnInputSend" value="Send" onclick="javascript: sendText(); " />
+		</div>
 		<div id="output">
 			<p>Output:</p>
-			<textarea id="mainOutput" readonly="readonly" rows="8" cols="30"></textarea>
+			<textarea id="mainOutput" readonly="readonly" rows="8" cols="60"></textarea>
 		</div>
 	</body>
 
 	<script type="text/javascript">
 		var stompClient = null;
 		var host = "<%= pageContext.getServletContext().getContextPath()%>";
+		var subscribes = [];
 
 		function connectWebsocket() {
 			var socket = new SockJS(host + '/chat');
@@ -37,10 +57,20 @@
 				stompClient.subscribe('/subscribe/hello', function (data) {
 					showLog(data.body);
 				});
+				
+				stompClient.subscribe('/subscribe/channel/general', function (data) {
+					showLog(JSON.parse(data.body));
+				});
+				
+				stompClient.subscribe('/subscribe/channels', function (data) {
+					receiveChannel(data.body);
+				});
 
 				$("#btnConnect").attr("disabled", "disabled");
 				$("#btnDisconnect").removeAttr("disabled");
 				$("#btnSendHello").removeAttr("disabled");
+				$("#channel-controls").show();
+				$("#input").show();
 			});
 		}
 
@@ -51,6 +81,8 @@
 			$("#btnConnect").removeAttr("disabled");
 			$("#btnDisconnect").attr("disabled", "disabled");
 			$("#btnSendHello").attr("disabled", "disabled");
+			$("#channel-controls").hide();
+			$("#input").hide();
 			console.log("Disconnected");
 		}
 
@@ -59,11 +91,83 @@
 			stompClient.send("/client/hello", {}, JSON.stringify("Hello!"));
 		}
 		
-		function showLog(msg, isInput) {
-			var log = isInput ? "<< " : ">> ";
+		function showLog(msg, isInput, channel) {
+			var log = isInput ? "SEND " : "RECV ";
+			log += "["
+			log += channel ? channel : "GENERAL CH";
+			log += "] "
 			log += msg;
 			log += "\n";
 			$("#mainOutput").append(log);
+		}
+		
+		function showError(msg) {
+			var err = "-- [ERROR] ";
+			err += msg;
+			err += "\n";
+			$("#mainOutput").append(err);
+		}
+		
+		function cleanChannels() {
+			$("#channels option").filter(function(){ return this.value ? true : false; }).remove();
+		}
+		
+		function createChannel() {
+			stompClient.send("/client/channel/create");
+		}
+		
+		function receiveChannel(channel) {
+			showLog("Channel " + channel + " created");
+			$("#channels").append($("<option>").attr("value", channel).text("Channel " + channel));
+		}
+		
+		function changeChannel() {
+			var channel = $("#channels").val();
+			
+			if(channel && subscribes[channel]) {
+				$("#btnChUnsubscribe").removeAttr("disabled");
+				$("#btnChSubscribe").attr("disabled", "disabled");
+				
+			} else if(channel && !subscribes[channel]) {
+				$("#btnChSubscribe").removeAttr("disabled");
+				$("#btnChUnsubscribe").attr("disabled", "disabled");
+				
+			} else {
+				$("#btnChSubscribe").removeAttr("disabled");
+				$("#btnChUnsubscribe").removeAttr("disabled");
+			}
+		}
+		
+		function subscribe() {
+			var channel = $("#channels").val();
+			
+			var subscribe = stompClient.subscribe('/subscribe/channel/' + channel, function (data) {
+				showLog(JSON.parse(data.body), false, channel);
+			});
+			
+			subscribes[channel] = subscribe;
+			changeChannel();
+		}
+		
+		function unsubscribe() {
+			var channel = $("#channels").val();
+			
+			subscribes[channel].unsubscribe();
+			subscribes = subscribes.splice(subscribes.indexOf(channel), 1);
+			changeChannel();
+		}
+		
+		function sendText() {
+			var text = $("#textInput").val();
+			var channel = $("#channels").val();
+			
+			if(text.length) {
+				showLog(text, true, channel);
+				stompClient.send("/client/channel/" + (channel.length ? channel : "general"), {}, JSON.stringify(text));
+				
+			} else {
+				showError("Empty input!")
+			}
 		}
 	</script>
 </html>
