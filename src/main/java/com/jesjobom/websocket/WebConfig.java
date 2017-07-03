@@ -1,16 +1,13 @@
 package com.jesjobom.websocket;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 /**
+ * Configuration of this web app, replacing web.xml according Servlet Specification 3.0.
  *
- * @author jairton
+ * @author jesjobom
+ * @see http://download.oracle.com/otn-pub/jcp/servlet-3.0-fr-eval-oth-JSpec/servlet-3_0-final-spec.pdf chapter 4
  */
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
 

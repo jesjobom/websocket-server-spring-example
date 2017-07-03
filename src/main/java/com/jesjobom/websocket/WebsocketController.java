@@ -32,6 +32,11 @@ public class WebsocketController {
 		return "Hi!";
 	}
 	
+	/**
+	 * After a request to create a channel, this new channel is broadcasted.
+	 * 
+	 * @return 
+	 */
 	@MessageMapping("/channel/create")
 	@SendTo("/subscribe/channels")
 	public String createChannel() {
@@ -39,6 +44,14 @@ public class WebsocketController {
 		return time.toString();
 	}
 	
+	/**
+	 * Receives a message through a channel and broadcasts this given 
+	 * message to this channel.
+	 * A channel can be subscribed by multiple clients.
+	 * 
+	 * @param channel
+	 * @param message 
+	 */
 	@MessageMapping("/channel/{channel}")
 	public void handleChannelMessages(@DestinationVariable String channel, @Payload String message) {
 		messagingTemplate.convertAndSend("/subscribe/channel/" + channel, message);
