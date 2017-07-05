@@ -55,7 +55,7 @@
 				console.log('Connected: ' + frame);
 
 				stompClient.subscribe('/subscribe/hello', function (data) {
-					showLog(data.body);
+					showLog(JSON.parse(data.body));
 				});
 				
 				stompClient.subscribe('/subscribe/channel/general', function (data) {
@@ -63,7 +63,11 @@
 				});
 				
 				stompClient.subscribe('/subscribe/channels', function (data) {
-					receiveChannel(data.body);
+					receiveChannel(JSON.parse(data.body));
+				});
+				
+				stompClient.subscribe('/user/subscribe/private', function (data) {
+					showLog(JSON.parse(data.body), false, "PRIVATE");
 				});
 
 				$("#btnConnect").attr("disabled", "disabled");
