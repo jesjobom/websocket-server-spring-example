@@ -97,16 +97,16 @@
 		
 		function showLog(msg, isInput, channel) {
 			var log = isInput ? "SEND " : "RECV ";
-			log += "["
+			log += "[";
 			log += channel ? channel : "GENERAL CH";
-			log += "] "
+			log += "] ";
 			log += msg;
 			log += "\n";
 			$("#mainOutput").append(log);
 		}
 		
 		function showError(msg) {
-			var err = "-- [ERROR] ";
+			var err = "ERROR ";
 			err += msg;
 			err += "\n";
 			$("#mainOutput").append(err);
