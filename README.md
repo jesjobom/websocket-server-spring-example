@@ -2,7 +2,7 @@
 This is a websocket server using Spring's API with a JSP for testing.
 The main idea here is to explore some of the Stomp's capabilities by defining "channels" for different users or uses over the same connection.
 So, I ended up with a chat like application where multiple browser instances can act like different users.
-Later, I'll publish a websocket client also using Spring's API.
+Also, I have published a [websocket client](https://github.com/jesjobom/websocket-client-spring-example) also using Spring's API that connects in this server.
 
 ## Testable Features
 - Connect via websocket (SockJS fallback available)
