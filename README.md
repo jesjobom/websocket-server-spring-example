@@ -32,5 +32,7 @@ Maybe add a field to informa a unique login before connecting?
 See that I don't want to add Spring Security to this example.
 
 TODO: config a custom channel interceptor to block multiple subscriptions to the same private channel.
-Otherwise it is possible to force a subscription a receive private messages to a user.
+Otherwise it is possible to force a subscription and receive private messages to a user.
 When a user subscribes to "/user/subscribe/private", internally it is translated to "/subscribe/private-user<session-id>".
+
+TODO: Using the above custom channel interceptor, detect new connected user and show to everyone "new user connected (<user_name>)".

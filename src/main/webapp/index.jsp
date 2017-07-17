@@ -98,11 +98,12 @@
 		function showLog(msg, isInput, channel) {
 			var log = isInput ? "SEND " : "RECV ";
 			log += "[";
-			log += channel ? channel : "GENERAL CH";
+			log += channel ? channel : "GENERAL";
 			log += "] ";
 			log += msg;
 			log += "\n";
 			$("#mainOutput").append(log);
+			$("#mainOutput").scrollTop( $("#mainOutput")[0].scrollHeight );
 		}
 		
 		function showError(msg) {
@@ -110,6 +111,7 @@
 			err += msg;
 			err += "\n";
 			$("#mainOutput").append(err);
+			$("#mainOutput").scrollTop( $("#mainOutput")[0].scrollHeight );
 		}
 		
 		function cleanChannels() {
